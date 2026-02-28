@@ -1,26 +1,20 @@
-# Plan de Correcciones - Guía de Capacitación
+# TODO - Implementación de Cambios
 
-## Tareas realizadas:
+## Tareas Completas
 
-### 1. ✅ Eliminar paso 1 "Inicio - Última Milla"
-- [x] Remover el primer paso del array `trainingSteps` en app.js
-- [x] Actualizar el total de pasos (de 8 a 7)
+- [x] 1. Editar index.html - Eliminar header-bottom y progress-container del header
+- [x] 2. Editar index.html - Agregar botón reiniciar pequeño en sidebar-header
+- [x] 3. Editar index.html - Mejorar mobile-menu-panel para mostrar los 7 pasos
+- [x] 4. Editar styles.css - Nuevos estilos para el botón de reiniciar en sidebar
+- [x] 5. Editar styles.css - Ajustar estilos del mobile menu y visibilidad del footer
+- [x] 6. Editar app.js - Modificar loadMobileMenuContent() para mostrar todos los pasos
+- [x] 7. Editar app.js - Agregar eventos para el botón de reiniciar pequeño
+- [x] 8. Editar app.js - Actualizar navigateToStep y resetProgress para refrescar mobile menu
 
-### 2. ✅ Corregir botones que no funcionan
-- [x] Corregir event listeners para:
-  - themeToggle (botón luz/oscuro) - ✅ Corregido
-  - modeSwitch (guía/libre) - ✅ Corregido
-  - prevBtn (anterior) - ✅ Corregido
-  - nextBtn (siguiente) - ✅ Corregido
-  - resetBtn (reiniciar proceso) - ✅ Corregido
+## Cambios Realizados
 
-### 3. ✅ Ajustar inicio de la app
-- [x] La app ahora inicia desde "Encontrar IPs" (paso 1)
-- [x] Actualizar mensajes de bienvenida
-- [x] Actualizar barra de progreso
-
-### 4. Cambios realizados
-- [x] Eliminado código de panel de bot que no existía en HTML
-- [x] Simplificado el código para evitar errores de elementos faltantes
-- [x] Agregada validación de elementos antes de usarlos
+1. **Header simplificado**: Se eliminó el botón grande de reiniciar y la barra de progreso del header
+2. **Botón de reiniciar pequeño**: Se agregó en la esquina superior derecha del sidebar donde están los 7 pasos
+3. **Mobile Menu mejorado**: Ahora muestra los 7 pasos completos cuando se usa en móvil/tablet
+4. **Footer visible**: Se ajustó el z-index y padding del mobile menu para que el footer sea visible
 

@@ -174,6 +174,8 @@ const botMessages = {
 // App State
 // ========================================
 
+const APP_VERSION = '1.0.0';
+
 const appState = {
     currentStep: 1,
     totalSteps: trainingSteps.length,
@@ -192,15 +194,28 @@ const elements = {
     progressText: document.getElementById('progressText'),
     modeSwitch: document.getElementById('modeSwitch'),
     themeToggle: document.getElementById('themeToggle'),
+    stepsMini: document.getElementById('stepsMini'),
     
     // Sidebar
     stepsNav: document.getElementById('stepsNav'),
     resetBtn: document.getElementById('resetBtn'),
+    resetBtnSmall: document.getElementById('resetBtnSmall'),
     
     // Content
     stepContent: document.getElementById('stepContent'),
     prevBtn: document.getElementById('prevBtn'),
-    nextBtn: document.getElementById('nextBtn')
+    nextBtn: document.getElementById('nextBtn'),
+    
+    // Mobile
+    mobileMenuBtn: document.getElementById('mobileMenuBtn'),
+    mobileContentBtn: document.getElementById('mobileContentBtn'),
+    mobileMenuPanel: document.getElementById('mobileMenuPanel'),
+    mobileMenuSteps: document.getElementById('mobileMenuSteps'),
+    mobileMenuClose: document.getElementById('mobileMenuClose'),
+    
+    // Modal
+    completionModal: document.getElementById('completionModal'),
+    completionCloseBtn: document.getElementById('completionCloseBtn')
 };
 
 // ========================================
@@ -208,11 +223,28 @@ const elements = {
 // ========================================
 
 function init() {
+    checkVersion();
     loadState();
     renderSidebar();
+    renderMiniSteps();
     renderContent();
     updateProgress();
     bindEvents();
+    loadMobileMenuContent();
+}
+
+// ========================================
+// Version Check & Cache Management
+// ========================================
+
+function checkVersion() {
+    const savedVersion = localStorage.getItem('guia_capacitacion_version');
+    if (savedVersion !== APP_VERSION) {
+        // Version changed - clear old state
+        localStorage.removeItem('guia_capacitacion_state');
+        localStorage.setItem('guia_capacitacion_version', APP_VERSION);
+        console.log('Versión actualizada a:', APP_VERSION);
+    }
 }
 
 // ========================================
@@ -220,13 +252,13 @@ function init() {
 // ========================================
 
 function loadState() {
+    // Progress always resets on refresh as requested
+    // Only load theme preference and mode setting, not progress
     try {
         const saved = localStorage.getItem('guia_capacitacion_state');
         if (saved) {
             const parsed = JSON.parse(saved);
-            appState.currentStep = parsed.currentStep || 1;
-            appState.completedSteps = parsed.completedSteps || [];
-            appState.checklistState = parsed.checklistState || {};
+            // Only load mode setting, not progress
             appState.isWizardMode = parsed.isWizardMode !== false;
             
             // Update mode switch
@@ -258,8 +290,10 @@ function resetProgress() {
     appState.checklistState = {};
     saveState();
     renderSidebar();
+    renderMiniSteps();
     renderContent();
     updateProgress();
+    loadMobileMenuContent();
     alert('Tu progreso ha sido reiniciado. ¡Puedes comenzar de nuevo cuando estés listo!');
 }
 
@@ -290,6 +324,29 @@ function renderSidebar() {
     
     // Add click handlers
     document.querySelectorAll('.step-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const stepId = parseInt(item.dataset.step);
+            navigateToStep(stepId);
+        });
+    });
+}
+
+function renderMiniSteps() {
+    if (!elements.stepsMini) return;
+    
+    elements.stepsMini.innerHTML = trainingSteps.map(step => {
+        const isActive = step.id === appState.currentStep;
+        const isCompleted = appState.completedSteps.includes(step.id);
+        
+        let stepClass = 'step-mini';
+        if (isActive) stepClass += ' active';
+        if (isCompleted) stepClass += ' completed';
+        
+        return `<div class="${stepClass}" data-step="${step.id}"><span>${step.id}</span></div>`;
+    }).join('');
+    
+    // Add click handlers for mini steps
+    document.querySelectorAll('.step-mini').forEach(item => {
         item.addEventListener('click', () => {
             const stepId = parseInt(item.dataset.step);
             navigateToStep(stepId);
@@ -415,6 +472,8 @@ function bindEvents() {
             
             if (appState.currentStep < appState.totalSteps) {
                 navigateToStep(appState.currentStep + 1);
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
                 // Show completion modal
                 showCompletionModal();
@@ -428,14 +487,24 @@ function bindEvents() {
             appState.isWizardMode = !elements.modeSwitch.checked;
             saveState();
             renderSidebar();
+            renderMiniSteps();
             renderContent();
             alert(appState.isWizardMode ? 'Has activado el modo guía.' : 'Has cambiado al modo de navegación libre.');
         });
     }
     
-    // Reset button
+    // Reset button (large - in case it exists)
     if (elements.resetBtn) {
         elements.resetBtn.addEventListener('click', () => {
+            if (confirm('¿Estás seguro de que quieres reiniciar todo el progreso?')) {
+                resetProgress();
+            }
+        });
+    }
+    
+    // Small reset button in sidebar
+    if (elements.resetBtnSmall) {
+        elements.resetBtnSmall.addEventListener('click', () => {
             if (confirm('¿Estás seguro de que quieres reiniciar todo el progreso?')) {
                 resetProgress();
             }
@@ -446,6 +515,34 @@ function bindEvents() {
     if (elements.themeToggle) {
         elements.themeToggle.addEventListener('click', () => {
             toggleTheme();
+        });
+    }
+    
+    // Mobile menu buttons
+    if (elements.mobileMenuBtn) {
+        elements.mobileMenuBtn.addEventListener('click', () => {
+            openMobileMenu();
+        });
+    }
+    
+    if (elements.mobileContentBtn) {
+        elements.mobileContentBtn.addEventListener('click', () => {
+            closeMobileMenu();
+        });
+    }
+    
+    if (elements.mobileMenuClose) {
+        elements.mobileMenuClose.addEventListener('click', () => {
+            closeMobileMenu();
+        });
+    }
+    
+    // Mobile menu panel click on content
+    if (elements.mobileMenuPanel) {
+        elements.mobileMenuPanel.addEventListener('click', (e) => {
+            if (e.target === elements.mobileMenuPanel) {
+                closeMobileMenu();
+            }
         });
     }
 }
@@ -491,6 +588,7 @@ function navigateToStep(stepId) {
     renderSidebar();
     renderContent();
     updateProgress();
+    loadMobileMenuContent();
 }
 
 function toggleChecklistItem(stepId, index) {
@@ -543,26 +641,119 @@ function showCompletionModal() {
     const modal = document.getElementById('completionModal');
     const completedSteps = document.getElementById('completedSteps');
     
-    if (modal && completedSteps) {
-        completedSteps.textContent = appState.totalSteps;
+    if (modal) {
         modal.classList.add('active');
         
-        // Add event listener to close button
+        // Add event listener to close button - reset progress on finish
         const closeBtn = document.getElementById('completionCloseBtn');
         if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
+            // Remove old event listeners to avoid duplicates
+            const newCloseBtn = closeBtn.cloneNode(true);
+            closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+            elements.completionCloseBtn = newCloseBtn;
+            
+            newCloseBtn.addEventListener('click', () => {
                 modal.classList.remove('active');
+                // Reset progress when finishing
+                resetProgress();
             });
         }
         
-        // Close on overlay click
+        // Close on overlay click - also reset progress
         const overlay = modal.querySelector('.completion-overlay');
         if (overlay) {
-            overlay.addEventListener('click', () => {
+            const newOverlay = overlay.cloneNode(true);
+            overlay.parentNode.replaceChild(newOverlay, overlay);
+            
+            newOverlay.addEventListener('click', () => {
                 modal.classList.remove('active');
+                resetProgress();
             });
         }
     }
+}
+
+// ========================================
+// Mobile Menu Functions
+// ========================================
+
+function openMobileMenu() {
+    if (elements.mobileMenuPanel) {
+        elements.mobileMenuPanel.classList.add('open');
+        if (elements.mobileMenuBtn) {
+            elements.mobileMenuBtn.classList.add('active');
+        }
+        if (elements.mobileContentBtn) {
+            elements.mobileContentBtn.classList.remove('active');
+        }
+    }
+}
+
+function closeMobileMenu() {
+    if (elements.mobileMenuPanel) {
+        elements.mobileMenuPanel.classList.remove('open');
+        if (elements.mobileMenuBtn) {
+            elements.mobileMenuBtn.classList.remove('active');
+        }
+    }
+}
+
+function loadMobileMenuContent() {
+    if (!elements.mobileMenuSteps) return;
+    
+    // Render all 7 steps in the mobile menu
+    elements.mobileMenuSteps.innerHTML = trainingSteps.map(step => {
+        const isActive = step.id === appState.currentStep;
+        const isCompleted = appState.completedSteps.includes(step.id);
+        const isLocked = appState.isWizardMode && !isCompleted && step.id > appState.currentStep;
+        
+        let stepClass = 'step-item';
+        if (isActive) stepClass += ' active';
+        if (isCompleted) stepClass += ' completed';
+        
+        return `
+            <div class="${stepClass}" data-step="${step.id}" ${isLocked ? 'style="opacity: 0.5; pointer-events: none;"' : ''}>
+                <div class="step-number">${isCompleted ? '' : step.id}</div>
+                <div class="step-info">
+                    <div class="step-title">${step.title}</div>
+                    <div class="step-description">${step.description}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    // Add click handlers for mobile menu steps
+    document.querySelectorAll('#mobileMenuSteps .step-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const stepId = parseInt(item.dataset.step);
+            
+            // In wizard mode, check if can navigate
+            if (appState.isWizardMode) {
+                const currentChecklist = appState.checklistState[appState.currentStep] || [];
+                const currentAllChecked = currentChecklist.every(c => c);
+                
+                // If trying to go forward and current not complete
+                if (stepId > appState.currentStep && !currentAllChecked) {
+                    alert('No puedes avanzar todavía. Por favor, completa las subtareas de este paso primero.');
+                    return;
+                }
+                
+                // If trying to skip steps
+                if (stepId > appState.currentStep + 1) {
+                    // Check if all previous steps are complete
+                    for (let i = appState.currentStep; i < stepId; i++) {
+                        if (!appState.completedSteps.includes(i)) {
+                            alert('Debes completar los pasos en orden.');
+                            return;
+                        }
+                    }
+                }
+            }
+            
+            navigateToStep(stepId);
+            closeMobileMenu();
+        });
+    });
 }
 
 // ========================================
