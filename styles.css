@@ -271,6 +271,26 @@ body::before {
     margin-bottom: 8px;
 }
 
+.mobile-hamburger {
+    display: none;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--background);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 18px;
+    transition: all var(--transition-fast);
+}
+
+.mobile-hamburger:hover {
+    background: var(--border);
+    color: var(--text-primary);
+}
+
 .logo {
     width: 32px;
     height: 32px;
@@ -1228,29 +1248,67 @@ input:checked + .slider::before {
     border-top: 1px solid var(--border);
     padding: var(--space-sm);
     z-index: 100;
+    display: flex;
+    flex-wrap: wrap;
+    height: auto;
+    gap: var(--space-xs);
+}
+
+.mobile-nav-toggle {
+    display: none;
+    width: 100%;
+    padding: var(--space-xs) var(--space-sm);
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--text-primary);
+    font-size: 16px;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.mobile-nav-toggle:hover {
+    color: var(--primary);
 }
 
 .mobile-nav-btn {
     flex: 1;
+    min-width: 48px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--space-xs);
-    padding: var(--space-sm);
+    padding: var(--space-xs) var(--space-sm);
     background: none;
     border: none;
     cursor: pointer;
     color: var(--text-secondary);
-    font-size: 12px;
+    font-size: 11px;
     font-family: var(--font-primary);
+    transition: all var(--transition-fast);
+}
+
+.mobile-nav-btn:hover {
+    color: var(--primary);
 }
 
 .mobile-nav-btn.active {
     color: var(--primary);
+    background: var(--primary-bg);
+    border-radius: var(--radius-md);
 }
 
 .mobile-nav-btn i {
-    font-size: 20px;
+    font-size: 18px;
+}
+
+.mobile-nav.collapsed .mobile-nav-btn {
+    display: none;
+}
+
+.mobile-nav.collapsed {
+    padding: var(--space-xs);
 }
 
 /* ========================================
@@ -1312,6 +1370,11 @@ input:checked + .slider::before {
     }
 
     .mobile-nav {
+        display: none;
+    }
+
+    /* Show hamburger on tablet */
+    .mobile-hamburger {
         display: flex;
     }
 
@@ -1322,6 +1385,23 @@ input:checked + .slider::before {
     /* Show header steps on tablet */
     .header-steps {
         display: flex;
+    }
+
+    /* Smaller buttons on tablet */
+    .content-actions {
+        padding-top: 12px;
+        margin-top: 12px;
+        gap: 8px;
+    }
+
+    .content-actions .btn {
+        padding: 10px 16px;
+        font-size: 13px;
+        border-radius: var(--radius-sm);
+    }
+
+    .content-actions .btn i {
+        font-size: 12px;
     }
 }
 
@@ -1340,6 +1420,12 @@ input:checked + .slider::before {
         flex-direction: row;
         justify-content: flex-start;
         align-items: center;
+    }
+
+    .mobile-hamburger {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
     }
 
     .logo {
@@ -1434,6 +1520,7 @@ input:checked + .slider::before {
 
     .content-panel {
         padding: 12px;
+        padding-bottom: 100px;
     }
 
     .step-content-title {
@@ -1463,15 +1550,21 @@ input:checked + .slider::before {
     }
 
     .content-actions {
-        flex-direction: column;
-        gap: 10px;
+        flex-direction: row;
+        gap: 8px;
+        padding-top: var(--space-md);
     }
 
-    .btn {
-        width: 100%;
+    .content-actions .btn {
+        flex: 1;
         justify-content: center;
-        padding: 10px 16px;
-        font-size: 14px;
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .content-actions .btn i {
+        font-size: 11px;
+        margin: 0 2px;
     }
 
     .bot-panel {
@@ -1496,6 +1589,22 @@ input:checked + .slider::before {
 
     .mode-toggle::after {
         content: '';
+    }
+
+    .mobile-nav-toggle {
+        display: flex;
+    }
+
+    .mobile-nav {
+        height: 48px;
+    }
+
+    .mobile-nav.collapsed .mobile-nav-btn:not(.mobile-nav-toggle) {
+        display: none;
+    }
+
+    .content-panel {
+        padding-bottom: 70px;
     }
 }
 

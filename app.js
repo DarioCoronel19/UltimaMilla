@@ -207,11 +207,14 @@ const elements = {
     nextBtn: document.getElementById('nextBtn'),
     
     // Mobile
+    mobileNav: document.getElementById('mobileNav'),
+    mobileNavToggle: document.getElementById('mobileNavToggle'),
     mobileMenuBtn: document.getElementById('mobileMenuBtn'),
     mobileContentBtn: document.getElementById('mobileContentBtn'),
     mobileMenuPanel: document.getElementById('mobileMenuPanel'),
     mobileMenuSteps: document.getElementById('mobileMenuSteps'),
     mobileMenuClose: document.getElementById('mobileMenuClose'),
+    mobileHamburger: document.getElementById('mobileHamburger'),
     
     // Modal
     completionModal: document.getElementById('completionModal'),
@@ -519,8 +522,21 @@ function bindEvents() {
     }
     
     // Mobile menu buttons
+    if (elements.mobileNavToggle) {
+        elements.mobileNavToggle.addEventListener('click', () => {
+            toggleMobileNav();
+        });
+    }
+    
     if (elements.mobileMenuBtn) {
         elements.mobileMenuBtn.addEventListener('click', () => {
+            openMobileMenu();
+        });
+    }
+    
+    // Hamburger button in header
+    if (elements.mobileHamburger) {
+        elements.mobileHamburger.addEventListener('click', () => {
             openMobileMenu();
         });
     }
@@ -694,6 +710,19 @@ function closeMobileMenu() {
         elements.mobileMenuPanel.classList.remove('open');
         if (elements.mobileMenuBtn) {
             elements.mobileMenuBtn.classList.remove('active');
+        }
+    }
+}
+
+function toggleMobileNav() {
+    if (elements.mobileNav) {
+        elements.mobileNav.classList.toggle('collapsed');
+        if (elements.mobileNavToggle) {
+            const icon = elements.mobileNavToggle.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-chevron-up');
+                icon.classList.toggle('fa-chevron-down');
+            }
         }
     }
 }
